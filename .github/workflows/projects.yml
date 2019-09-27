@@ -1,0 +1,45 @@
+name: Add issue to the appropriate project
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add to Clipshot project
+        if: |
+          contains(github.event.issue.body, '[x] `clipshot.lua`)'
+        uses: alex-page/github-project-automation-plus@v0.1.0
+        with:
+          project: Clipshot
+          column: To do
+          repo-token: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Add to Misc project
+        if: |
+          contains(github.event.issue.body, '[x] `misc.lua`)'
+        uses: alex-page/github-project-automation-plus@v0.1.0
+        with:
+          project: Misc
+          column: To do
+          repo-token: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Add to Open Dialog (KDialog) project
+        if: |
+          contains(github.event.issue.body, '[x] `open-dialog/kdialog.lua`)'
+        uses: alex-page/github-project-automation-plus@v0.1.0
+        with:
+          project: Open Dialog (KDialog)
+          column: To do
+          repo-token: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Add to Open Dialog (Zenity) project
+        if: |
+          contains(github.event.issue.body, '[x] `open-dialog/zenity.lua`)'
+        uses: alex-page/github-project-automation-plus@v0.1.0
+        with:
+          project: Open Dialog (Zenity)
+          column: To do
+          repo-token: ${{secrets.GITHUB_TOKEN}}
