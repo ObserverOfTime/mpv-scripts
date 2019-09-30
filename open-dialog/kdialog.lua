@@ -37,7 +37,7 @@ function KDialog(opts)
     return function()
         local path = mp.get_property('path')
         path = path == nil and '' or utils.split_path(
-            utils.join_path(mp.getcwd(), path)
+            utils.join_path(utils.getcwd(), path)
         )
         local ontop = mp.get_property_native('ontop')
         local focus = utils.subprocess {
