@@ -48,7 +48,7 @@ function Zenity(opts)
         local path = mp.get_property('path')
         path = path == nil and {} or {
             '--filename', utils.split_path(
-                utils.join_path(mp.getcwd(), path)
+                utils.join_path(utils.getcwd(), path)
             )
         }
         local ontop = mp.get_property_native('ontop')

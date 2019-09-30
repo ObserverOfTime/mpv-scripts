@@ -49,7 +49,7 @@ or [WinZenity][winzenity] and download [zenity_nox.lua][zenity-nox].
 [kdialog]: https://github.com/KDE/kdialog
 [zenity]: https://github.com/GNOME/zenity
 [xdotool]: https://github.com/jordansissel/xdotool
-[zenity-nox]: https://git.io/zenity_nox.lua
+[zenity-nox]: https://git.io/JeZZL
 [brew]: https://formulae.brew.sh/formula/zenity
 [ports]: https://ports.macports.org/port/zenity/summary
 [windows]: https://github.com/kvaps/zenity-windows
