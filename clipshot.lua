@@ -5,7 +5,8 @@ NAME = 'mpv-screenshot.png'
 if package.config:sub(1, 1) ~= '/' then -- Windows
     SHOT = os.getenv('TEMP')..'\\'..NAME
     CMD = {
-        'powershell', '-NoProfile', '-Command', string.format([[& {
+        'powershell', '-NoProfile', '-Command',
+        string.format([[& {
             Add-Type -Assembly System.Windows.Forms;
             Add-Type -Assembly System.Drawing;
             $shot = [Drawing.Image]::FromFile(%q);
