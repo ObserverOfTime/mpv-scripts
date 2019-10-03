@@ -6,6 +6,7 @@
 * [ ] `misc.lua`
 * [ ] `open-dialog/kdialog.lua`
 * [ ] `open-dialog/zenity.lua`
+* [ ] `open-dialog/powershell.lua`
 
 ## Description
 <!--- Provide a detailed description of the issue. -->

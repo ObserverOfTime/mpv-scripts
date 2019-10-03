@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Add to Clipshot project
         if: |
-          contains(github.event.issue.body, '[x] `clipshot.lua`)'
+          contains(github.event.issue.body, '[x] `clipshot.lua`')
         uses: alex-page/github-project-automation-plus@v0.1.0
         with:
           project: Clipshot
@@ -19,7 +19,7 @@ jobs:
 
       - name: Add to Misc project
         if: |
-          contains(github.event.issue.body, '[x] `misc.lua`)'
+          contains(github.event.issue.body, '[x] `misc.lua`')
         uses: alex-page/github-project-automation-plus@v0.1.0
         with:
           project: Misc
@@ -28,7 +28,7 @@ jobs:
 
       - name: Add to Open Dialog (KDialog) project
         if: |
-          contains(github.event.issue.body, '[x] `open-dialog/kdialog.lua`)'
+          contains(github.event.issue.body, '[x] `open-dialog/kdialog.lua`')
         uses: alex-page/github-project-automation-plus@v0.1.0
         with:
           project: Open Dialog (KDialog)
@@ -37,9 +37,18 @@ jobs:
 
       - name: Add to Open Dialog (Zenity) project
         if: |
-          contains(github.event.issue.body, '[x] `open-dialog/zenity.lua`)'
+          contains(github.event.issue.body, '[x] `open-dialog/zenity.lua`')
         uses: alex-page/github-project-automation-plus@v0.1.0
         with:
           project: Open Dialog (Zenity)
+          column: To do
+          repo-token: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Add to Open Dialog (PowerShell) project
+        if: |
+          contains(github.event.issue.body, '[x] `open-dialog/powershell.lua`')
+        uses: alex-page/github-project-automation-plus@v0.1.0
+        with:
+          project: Open Dialog (PowerShell)
           column: To do
           repo-token: ${{secrets.GITHUB_TOKEN}}
