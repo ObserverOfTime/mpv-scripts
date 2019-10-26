@@ -1,0 +1,26 @@
+name: Check scripts with luacheck
+
+on: [push, pull_request]
+
+jobs:
+  luacheck:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        lua:
+          - ver: 5.1.5
+            std: lua51
+          - ver: 5.2.4
+            std: lua52c
+          - ver: luajit-2.0.5
+            std: luajit
+    steps:
+      - uses: actions/checkout@master
+      - uses: leafo/gh-actions-lua@v5
+        with:
+          luaVersion: ${{matrix.lua.ver}}
+      - uses: leafo/gh-actions-luarocks@v2
+      - name: Install luacheck
+        run: luarocks install luacheck
+      - name: Lint with luacheck
+        run: luacheck --std ${{matrix.lua.std}} .
