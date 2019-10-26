@@ -1,11 +1,10 @@
-utils = require 'mp.utils'
-
 NAME = 'mpv-screenshot.png'
 
 if package.config:sub(1, 1) ~= '/' then -- Windows
     SHOT = os.getenv('TEMP')..'\\'..NAME
     CMD = {
-        'powershell', '-NoProfile', '-Command', string.format([[& {
+        'powershell', '-NoProfile', '-Command',
+        string.format([[& {
             Add-Type -Assembly System.Windows.Forms;
             Add-Type -Assembly System.Drawing;
             $shot = [Drawing.Image]::FromFile(%q);
@@ -32,12 +31,9 @@ end
 function clipshot(arg)
     return function()
         mp.commandv('screenshot-to-file', SHOT, arg)
-        utils.subprocess_detached({args = CMD})
-        mp.osd_message('Copied screenshot to clipboard')
-        -- TODO: switch to new API when it's in stable
-        -- mp.command_native_async({'run', unpack(CMD)}, function(suc, res, err)
-        --    mp.osd_message(suc and 'Copied screenshot to clipboard' or err)
-        -- end)
+        mp.command_native_async({'run', unpack(CMD)}, function(suc, _, err)
+           mp.osd_message(suc and 'Copied screenshot to clipboard' or err)
+        end)
     end
 end
 
