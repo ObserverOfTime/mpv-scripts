@@ -1,4 +1,4 @@
-NAME = 'mpv-screenshot.png'
+NAME = 'mpv-screenshot.jpeg'
 
 if package.config:sub(1, 1) ~= '/' then -- Windows
     SHOT = os.getenv('TEMP')..'\\'..NAME
@@ -19,12 +19,16 @@ else -- Unix
         CMD = {
             'osascript', '-e', string.format([[¬
                 set the clipboard to ( ¬
-                    read (POSIX file %q) as «class PNG» ¬
+                    read (POSIX file %q) as JPEG picture ¬
                 ) ¬
             ]], SHOT)
         }
     else -- Linux/BSD
-        CMD = {'xclip', '-sel', 'c', '-t', 'image/png', '-i', SHOT}
+        if os.getenv('XDG_SESSION_TYPE') == 'wayland' then -- Wayland
+            CMD = {'sh', '-c', string.format('wl-copy < %q', SHOT)}
+        else -- Xorg
+            CMD = {'xclip', '-sel', 'c', '-t', 'image/jpeg', '-i', SHOT}
+        end
     end
 end
 
@@ -32,7 +36,7 @@ function clipshot(arg)
     return function()
         mp.commandv('screenshot-to-file', SHOT, arg)
         mp.command_native_async({'run', unpack(CMD)}, function(suc, _, err)
-           mp.osd_message(suc and 'Copied screenshot to clipboard' or err)
+            mp.osd_message(suc and 'Copied screenshot to clipboard' or err)
         end)
     end
 end
