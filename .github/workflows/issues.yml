@@ -52,3 +52,12 @@ jobs:
           project: Open Dialog (PowerShell)
           column: To do
           repo-token: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Add to Discord project
+        if: |
+          contains(github.event.issue.body, '[x] `discord.lua`')
+        uses: alex-page/github-project-automation-plus@v0.1.0
+        with:
+          project: Discord
+          column: To do
+          repo-token: ${{secrets.GITHUB_TOKEN}}

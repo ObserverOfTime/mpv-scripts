@@ -7,6 +7,7 @@
 * [ ] `open-dialog/kdialog.lua`
 * [ ] `open-dialog/zenity.lua`
 * [ ] `open-dialog/powershell.lua`
+* [ ] `discord.lua`
 
 ## Description
 <!--- Provide a detailed description of the issue. -->
