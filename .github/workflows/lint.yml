@@ -16,10 +16,13 @@ jobs:
             std: luajit
     steps:
       - uses: actions/checkout@master
+        name: Checkout repository
       - uses: leafo/gh-actions-lua@v5
+        name: Install lua - ${{matrix.lua.ver}}
         with:
           luaVersion: ${{matrix.lua.ver}}
       - uses: leafo/gh-actions-luarocks@v2
+        name: Install luarocks
       - name: Install luacheck
         run: luarocks install luacheck
       - name: Lint with luacheck

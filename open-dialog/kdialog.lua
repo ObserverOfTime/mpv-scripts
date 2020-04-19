@@ -56,7 +56,7 @@ function KDialog(opts)
         }
         mp.set_property_native('ontop', ontop)
         if kdialog.status ~= 0 then return end
-        for file in string.gmatch(kdialog.stdout, '[^\n]+') do
+        for file in kdialog.stdout:gmatch('[^\n]+') do
             mp.commandv(opts.args[1], file, opts.args[2])
         end
     end

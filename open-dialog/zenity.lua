@@ -71,7 +71,7 @@ function Zenity(opts)
         }
         mp.set_property_native('ontop', ontop)
         if zenity.status ~= 0 then return end
-        for file in string.gmatch(zenity.stdout, '[^\n]+') do
+        for file in zenity.stdout:gmatch('[^\n]+') do
             mp.commandv(opts.args[1], file, opts.args[2])
         end
     end

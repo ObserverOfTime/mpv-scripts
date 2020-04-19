@@ -30,6 +30,13 @@ Screenshot the video (w/o subs) and copy it to the clipboard.
 Screenshot the full window and copy it to the clipboard.
 <br>Default key binding: `Alt+c`
 
+### [discord.lua](discord.lua)
+
+A Discord RPC script that does not require LuaJIT.
+<br>It can be used out of the box on Windows.
+<br>On Linux and MacOS it depends on [luasocket][].
+<br>Default key binding: `D`
+
 ### [misc.lua](misc.lua)
 
 Miscellaneous simple functions.
@@ -40,3 +47,4 @@ Show the current time (`HH:MM`) on the OSD.
 <br>Default key binding: `Ctrl+t`
 
 [mpv]: https://github.com/mpv-player/mpv
+[luasocket]: http://w3.impa.br/~diego/software/luasocket/home.html

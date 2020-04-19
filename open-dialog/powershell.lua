@@ -55,12 +55,12 @@ function PowerShell(opts)
         local powershell = utils.subprocess {
             args = {
                 'powershell', '-NoProfile', '-Command',
-                string.format(template, opts.text, opts.title, path)
+                template:format(opts.text, opts.title, path)
             }, cancellable = false
         }
         mp.set_property_native('ontop', ontop)
         if powershell.status ~= 0 then return end
-        for file in string.gmatch(powershell.stdout, '[^\r\n]+') do
+        for file in powershell.stdout:gmatch('[^\r\n]+') do
             mp.commandv(opts.args[1], file, opts.args[2])
         end
     end
