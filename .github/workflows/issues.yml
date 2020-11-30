@@ -11,7 +11,7 @@ jobs:
       - name: Add to Clipshot project
         if: |
           contains(github.event.issue.body, '[x] `clipshot.lua`')
-        uses: alex-page/github-project-automation-plus@v0.1.0
+        uses: alex-page/github-project-automation-plus@v0.5.1
         with:
           project: Clipshot
           column: To do
@@ -20,7 +20,7 @@ jobs:
       - name: Add to Misc project
         if: |
           contains(github.event.issue.body, '[x] `misc.lua`')
-        uses: alex-page/github-project-automation-plus@v0.1.0
+        uses: alex-page/github-project-automation-plus@v0.5.1
         with:
           project: Misc
           column: To do
@@ -29,7 +29,7 @@ jobs:
       - name: Add to Open Dialog (KDialog) project
         if: |
           contains(github.event.issue.body, '[x] `open-dialog/kdialog.lua`')
-        uses: alex-page/github-project-automation-plus@v0.1.0
+        uses: alex-page/github-project-automation-plus@v0.5.1
         with:
           project: Open Dialog (KDialog)
           column: To do
@@ -38,7 +38,7 @@ jobs:
       - name: Add to Open Dialog (Zenity) project
         if: |
           contains(github.event.issue.body, '[x] `open-dialog/zenity.lua`')
-        uses: alex-page/github-project-automation-plus@v0.1.0
+        uses: alex-page/github-project-automation-plus@v0.5.1
         with:
           project: Open Dialog (Zenity)
           column: To do
@@ -47,7 +47,7 @@ jobs:
       - name: Add to Open Dialog (PowerShell) project
         if: |
           contains(github.event.issue.body, '[x] `open-dialog/powershell.lua`')
-        uses: alex-page/github-project-automation-plus@v0.1.0
+        uses: alex-page/github-project-automation-plus@v0.5.1
         with:
           project: Open Dialog (PowerShell)
           column: To do
@@ -56,7 +56,7 @@ jobs:
       - name: Add to Discord project
         if: |
           contains(github.event.issue.body, '[x] `discord.lua`')
-        uses: alex-page/github-project-automation-plus@v0.1.0
+        uses: alex-page/github-project-automation-plus@v0.5.1
         with:
           project: Discord
           column: To do

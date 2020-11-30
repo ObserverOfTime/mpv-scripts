@@ -12,14 +12,14 @@ require('mp.options').read_options(o, 'discord')
 function string.uuid()
     math.randomseed(mp.get_time() * 1e4)
     local tpl = 'XXXXXXXX-XXXX-4XXX-%xXXX-XXXXXXXXXXXX'
-    return tpl:format(math.random(8, 0xb)):gsub('X', function(c)
+    return tpl:format(math.random(8, 0xb)):gsub('X', function(_)
         return ('%x'):format(math.random(0, 0xf))
     end)
 end
 
 function string:tohex()
     return self:gsub('.', function(c)
-        return ('\\x%02x'):format(string.byte(c))
+        return ('\\x%02x'):format(c:byte())
     end)
 end
 
@@ -36,8 +36,8 @@ RPC = {
 if RPC.unix then
     local temp = os.getenv('XDG_RUNTIME_DIR')
         or os.getenv('TMPDIR')
-        or os.getenv('TEMP')
         or os.getenv('TMP')
+        or os.getenv('TEMP')
         or '/tmp'
     RPC.path = temp..'/discord-ipc-0'
 else
@@ -72,18 +72,18 @@ function RPC.pack(op, body)
 end
 
 function RPC.unpack(body)
+    local byte
     local op = 0
     local len = 0
     local iter = 1
-    local byte = nil
     assert(body, 'empty body')
     for j = 1, 4 do
-        byte = string.byte(body:sub(iter, iter))
+        byte = body:sub(iter, iter):byte()
         op = op + byte * (2 ^ ((j - 1) * 8))
         iter = iter + 1
     end
     for j = 1, 4 do
-        byte = string.byte(body:sub(iter, iter))
+        byte = body:sub(iter, iter):byte()
         len = len + byte * (2 ^ ((j - 1) * 8))
         iter = iter + 1
     end
@@ -128,7 +128,7 @@ function RPC:recv(len)
         msg.error(data)
         return nil
     end
-    assert(string.len(data) == len, 'incorrect data length')
+    assert(data:len() == len, 'incorrect data length')
     msg.debug('received', data:tohex())
     return data
 end
@@ -198,7 +198,7 @@ function RPC:disconnect()
     end
 end
 
-mp.register_event('idle', function()
+mp.register_event('idle-active', function()
     RPC.activity = {
         details = 'No file',
         state = nil,
@@ -229,14 +229,17 @@ mp.register_event('file-loaded', function()
     if path and path:find('^https?://') then
         if path:find('youtube%.com') or path:find('youtu%.be') then
             RPC.activity.assets.large_image = 'youtube'
-        elseif path:find('invidio%.us') or path:find('yewtu%.be') then
-            RPC.activity.assets.large_image = 'invidious'
         elseif path:find('twitch%.tv') then
             RPC.activity.assets.large_image = 'twitch'
         elseif path:find('twitter%.com') then
             RPC.activity.assets.large_image = 'twitter'
-        elseif path:find('discordapp%.com') then
+        elseif path:find('discordapp%.com') or
+               path:find('discordapp%.net') then
             RPC.activity.assets.large_image = 'discord'
+        elseif path:find('yewtu%.be') or
+               path:find('invidious%.snopyta%.org') or
+               path:find('vid%.mint%.lgbt') then
+            RPC.activity.assets.large_image = 'invidious'
         else
             RPC.activity.assets.large_image = 'stream'
         end
