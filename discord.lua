@@ -47,7 +47,8 @@ end
 RPC.activity = {
     details = 'No file',
     state = nil,
-    timestamps = {},
+    timestamps = nil,
+    buttons = nil,
     assets = {
         large_image = 'mpv',
         large_text = MPV,
@@ -55,6 +56,11 @@ RPC.activity = {
         small_text = 'Idle'
     }
 }
+
+function RPC.get_time()
+    local pos = mp.get_property_number('time-pos', 0)
+    return math.floor(os.time() - pos)
+end
 
 function RPC.pack(op, body)
     local bytes = {}
@@ -168,7 +174,7 @@ function RPC:set_activity()
     local body = utils.format_json {
         cmd = 'SET_ACTIVITY', nonce = nonce,
         args = {activity = self.activity, pid = self.pid}
-    }:gsub('%[]', '{}')
+    }
     self:send(OP.FRAME, body)
     local res = self:recv(8)
     if not res then
@@ -202,7 +208,8 @@ mp.register_event('idle-active', function()
     RPC.activity = {
         details = 'No file',
         state = nil,
-        timestamps = {},
+        buttons = nil,
+        timestamps = nil,
         assets = {
             small_image = 'stop',
             small_text = 'Idle',
@@ -243,16 +250,18 @@ mp.register_event('file-loaded', function()
         else
             RPC.activity.assets.large_image = 'stream'
         end
-        RPC.activity.assets.large_text = path
+        RPC.activity.buttons = {
+            {label = 'Open URL', url = path}
+        }
     else
+        RPC.activity.buttons = nil
         RPC.activity.assets.large_image = 'mpv'
-        RPC.activity.assets.large_text = MPV
     end
     RPC.activity.details = title
     RPC.activity.state = time..plist
     RPC.activity.assets.small_image = 'pause'
     RPC.activity.assets.small_text = 'Paused'
-    RPC.activity.timestamps = {}
+    RPC.activity.timestamps = nil
 end)
 
 mp.register_event('shutdown', function()
@@ -260,22 +269,18 @@ mp.register_event('shutdown', function()
 end)
 
 mp.register_event('seek', function()
-    local pos = mp.get_property_number('time-pos')
-    RPC.activity.timestamps = {
-        start = math.floor(os.time() - (pos or 0))
-    }
+    if not mp.get_property_bool('pause') then
+        RPC.activity.timestamps = {start = RPC.get_time()}
+    end
 end)
 
 mp.observe_property('paused-for-cache', 'bool', function(_, value)
     if value then
-        RPC.activity.timestamps = {}
+        RPC.activity.timestamps = nil
         RPC.activity.assets.small_image = 'play'
         RPC.activity.assets.small_text = 'Playing'
     else
-        local pos = mp.get_property_number('time-pos')
-        RPC.activity.timestamps = {
-            start = math.floor(os.time() - (pos or 0))
-        }
+        RPC.activity.timestamps = {start = RPC.get_time()}
         RPC.activity.assets.small_image = 'play'
         RPC.activity.assets.small_text = 'Playing'
     end
@@ -283,14 +288,11 @@ end)
 
 mp.observe_property('core-idle', 'bool', function(_, value)
     if value then
-        RPC.activity.timestamps = {}
+        RPC.activity.timestamps = nil
         RPC.activity.assets.small_image = 'pause'
         RPC.activity.assets.small_text = 'Loading'
     else
-        local pos = mp.get_property_number('time-pos')
-        RPC.activity.timestamps = {
-            start = math.floor(os.time() - (pos or 0))
-        }
+        RPC.activity.timestamps = {start = RPC.get_time()}
         RPC.activity.assets.small_image = 'play'
         RPC.activity.assets.small_text = 'Playing'
     end
@@ -298,14 +300,11 @@ end)
 
 mp.observe_property('pause', 'bool', function(_, value)
     if value then
-        RPC.activity.timestamps = {}
+        RPC.activity.timestamps = nil
         RPC.activity.assets.small_image = 'pause'
         RPC.activity.assets.small_text = 'Paused'
     else
-        local pos = mp.get_property_number('time-pos')
-        RPC.activity.timestamps = {
-            start = math.floor(os.time() - (pos or 0))
-        }
+        RPC.activity.timestamps = {start = RPC.get_time()}
         RPC.activity.assets.small_image = 'play'
         RPC.activity.assets.small_text = 'Playing'
     end
@@ -313,7 +312,7 @@ end)
 
 mp.observe_property('eof-reached', 'bool', function(_, value)
     if value then
-        RPC.activity.timestamps = {}
+        RPC.activity.timestamps = nil
         RPC.activity.assets.small_image = 'stop'
         RPC.activity.assets.small_text = 'Idle'
     end
