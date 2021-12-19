@@ -1,0 +1,58 @@
+name: Bug Report
+labels: [bug]
+description: Did something not work as expected?
+body:
+  - type: dropdown
+    id: scripts
+    attributes:
+      label: Script(s)
+      multiple: true
+      options:
+        - "`clipshot.lua`"
+        - "`discord.lua`"
+        - "`misc.lua`"
+        - "`open-dialog/kdialog.lua`"
+        - "`open-dialog/powershell.lua`"
+        - "`open-dialog/zenity.lua`"
+    validations: {required: true}
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: >-
+        Provide a detailed description of the
+        issue, and why you consider it to be a bug.
+    validations: {required: true}
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Possible Fix
+      description: >-
+        Can you suggest a fix or reason for the bug?
+    validations: {required: false}
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: >-
+        Provide some screenshots, or an unambiguous set of steps to
+        reproduce this bug. Include code to reproduce, if relevant.
+    validations: {required: false}
+  - type: checkboxes
+    id: operating-system
+    attributes:
+      label: Operating System(s)
+      options:
+        - label: Windows
+        - label: Linux
+        - label: macOS
+  - type: input
+    id: mpv-version
+    attributes:
+      label: MPV version
+    validations: {required: false}
+  - type: input
+    id: lua-version
+    attributes:
+      label: Lua version
+    validations: {required: false}

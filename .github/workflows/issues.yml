@@ -1,63 +1,70 @@
-name: Add issue to the appropriate project
+name: Automate issue labels & projects
 
 on:
   issues:
     types: [opened]
 
 jobs:
+  add-os-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add Windows label
+        if: contains(github.event.issue.body, '[x] Windows')
+        uses: jeffdanielperso/github-project-auto@1.0.0
+        with:
+          labels-add: os:windows
+      - name: Add Linux label
+        if: contains(github.event.issue.body, '[x] Linux')
+        uses: jeffdanielperso/github-project-auto@1.0.0
+        with:
+          labels-add: os:linux
+      - name: Add macOS label
+        if: contains(github.event.issue.body, '[x] macOS')
+        uses: jeffdanielperso/github-project-auto@1.0.0
+        with:
+          labels-add: os:macos
+
   add-to-project:
     runs-on: ubuntu-latest
     steps:
       - name: Add to Clipshot project
-        if: |
-          contains(github.event.issue.body, '[x] `clipshot.lua`')
-        uses: alex-page/github-project-automation-plus@v0.5.1
+        if: contains(github.event.issue.body, '`clipshot.lua`')
+        uses: jeffdanielperso/github-project-auto@1.0.0
         with:
-          project: Clipshot
-          column: To do
-          repo-token: ${{secrets.GITHUB_TOKEN}}
-
+          project-name: Clipshot
+          project-column: To do
       - name: Add to Misc project
-        if: |
-          contains(github.event.issue.body, '[x] `misc.lua`')
-        uses: alex-page/github-project-automation-plus@v0.5.1
+        if: contains(github.event.issue.body, '`misc.lua`')
+        uses: jeffdanielperso/github-project-auto@1.0.0
         with:
-          project: Misc
-          column: To do
-          repo-token: ${{secrets.GITHUB_TOKEN}}
-
+          project-name: Misc
+          project-column: To do
+          project-scope: repository
       - name: Add to Open Dialog (KDialog) project
-        if: |
-          contains(github.event.issue.body, '[x] `open-dialog/kdialog.lua`')
-        uses: alex-page/github-project-automation-plus@v0.5.1
+        if: contains(github.event.issue.body, '`open-dialog/kdialog.lua`')
+        uses: jeffdanielperso/github-project-auto@1.0.0
         with:
-          project: Open Dialog (KDialog)
-          column: To do
-          repo-token: ${{secrets.GITHUB_TOKEN}}
-
+          project-name: Open Dialog (KDialog)
+          project-column: To do
+          project-scope: repository
       - name: Add to Open Dialog (Zenity) project
-        if: |
-          contains(github.event.issue.body, '[x] `open-dialog/zenity.lua`')
-        uses: alex-page/github-project-automation-plus@v0.5.1
+        if: contains(github.event.issue.body, '`open-dialog/zenity.lua`')
+        uses: jeffdanielperso/github-project-auto@1.0.0
         with:
-          project: Open Dialog (Zenity)
-          column: To do
-          repo-token: ${{secrets.GITHUB_TOKEN}}
-
+          project-name: Open Dialog (Zenity)
+          project-column: To do
+          project-scope: repository
       - name: Add to Open Dialog (PowerShell) project
-        if: |
-          contains(github.event.issue.body, '[x] `open-dialog/powershell.lua`')
-        uses: alex-page/github-project-automation-plus@v0.5.1
+        if: contains(github.event.issue.body, '`open-dialog/powershell.lua`')
+        uses: jeffdanielperso/github-project-auto@1.0.0
         with:
-          project: Open Dialog (PowerShell)
-          column: To do
-          repo-token: ${{secrets.GITHUB_TOKEN}}
-
+          project-name: Open Dialog (PowerShell)
+          project-column: To do
+          project-scope: repository
       - name: Add to Discord project
-        if: |
-          contains(github.event.issue.body, '[x] `discord.lua`')
-        uses: alex-page/github-project-automation-plus@v0.5.1
+        if: contains(github.event.issue.body, '`discord.lua`')
+        uses: jeffdanielperso/github-project-auto@1.0.0
         with:
-          project: Discord
-          column: To do
-          repo-token: ${{secrets.GITHUB_TOKEN}}
+          project-name: Discord
+          project-column: To do
+          project-scope: repository
