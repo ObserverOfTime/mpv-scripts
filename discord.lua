@@ -5,6 +5,10 @@ local o = {
     timeout = 2,
     keybind = 'D',
     enabled = false,
+    invidious = 'yewtu%.be',
+    piped = 'piped%.kavin%.rocks',
+    nitter = 'nitter%.net',
+    libreddit = 'libredd%.it',
     client_id = '700723249889149038'
 }
 require('mp.options').read_options(o, 'discord')
@@ -134,8 +138,8 @@ function RPC:recv(len)
         msg.error(data)
         return nil
     end
-    assert(data:len() == len, 'incorrect data length')
     msg.debug('received', data:tohex())
+    assert(data:len() == len, 'incorrect data length')
     return data
 end
 
@@ -227,26 +231,38 @@ mp.register_event('file-loaded', function()
     time = time and 'Duration: '..os.date('!%T', time) or ''
     local plist = mp.get_property_number('playlist-count')
     if plist > 1 then
-        local pos = mp.get_property('playlist-pos-1')
-        plist = (' [%d/%d]'):format(pos, plist)
+        local item = mp.get_property('playlist-pos')
+        plist = (' [%d/%d]'):format(item + 1, plist)
+        item = mp.get_property(('playlist/%d/title'):format(item))
+        if item then title = item end
     else
         plist = ''
     end
     local path = mp.get_property('path')
     if path and path:find('^https?://') then
-        if path:find('youtube%.com') or path:find('youtu%.be') then
+        if path:find('youtube%.com') or
+           path:find('youtu%.be') then
             RPC.activity.assets.large_image = 'youtube'
         elseif path:find('twitch%.tv') then
             RPC.activity.assets.large_image = 'twitch'
+        elseif path:find('cdn%.discordapp%.com') or
+               path:find('media%.discordapp%.net') then
+            RPC.activity.assets.large_image = 'discord'
+        elseif path:find('drive%.google%.') then
+            RPC.activity.assets.large_image = 'drive'
         elseif path:find('twitter%.com') then
             RPC.activity.assets.large_image = 'twitter'
-        elseif path:find('discordapp%.com') or
-               path:find('discordapp%.net') then
-            RPC.activity.assets.large_image = 'discord'
-        elseif path:find('yewtu%.be') or
-               path:find('invidious%.snopyta%.org') or
-               path:find('vid%.mint%.lgbt') then
+        elseif path:find('reddit%.com') or
+               path:find('redd%.it') then
+            RPC.activity.assets.large_image = 'reddit'
+        elseif path:find(o.invidious) then
             RPC.activity.assets.large_image = 'invidious'
+        elseif path:find(o.piped) then
+            RPC.activity.assets.large_image = 'piped'
+        elseif path:find(o.nitter) then
+            RPC.activity.assets.large_image = 'nitter'
+        elseif path:find(o.libreddit) then
+            RPC.activity.assets.large_image = 'libreddit'
         else
             RPC.activity.assets.large_image = 'stream'
         end
