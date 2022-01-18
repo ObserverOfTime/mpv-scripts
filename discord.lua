@@ -39,11 +39,46 @@ RPC = {
 
 if RPC.unix then
     local temp = os.getenv('XDG_RUNTIME_DIR')
-        or os.getenv('TMPDIR')
-        or os.getenv('TMP')
-        or os.getenv('TEMP')
-        or '/tmp'
+              or os.getenv('TMPDIR')
+              or os.getenv('TMP')
+              or os.getenv('TEMP')
+              or '/tmp'
     RPC.path = temp..'/discord-ipc-0'
+    if type(jit) == 'table' then
+        msg.verbose('using', jit.version)
+        ffi = require('ffi')
+        ffi.cdef[[
+            struct sockaddr {
+                unsigned short int sa_family;
+                char sa_data[14];
+            };
+            struct sockaddr_un {
+                unsigned short int sun_family;
+                char sun_path[108];
+            };
+            int socket(int domain, int type, int protocol);
+            int connect(int fd, const struct sockaddr *addr, unsigned int len);
+            int recv(int fd, void *buf, unsigned int len, int flags);
+            int send(int fd, const void *buf, unsigned int n, int flags);
+            int close(int fd);
+            char *strerror(int errnum);
+        ]]
+        function _strerror()
+            return ffi.string(ffi.C.strerror(ffi.errno()))
+        end
+        function _connect(fd, addr)
+            local cast = ffi.cast('const struct sockaddr *', addr)
+            return ffi.C.connect(fd, cast, ffi.sizeof(addr[0]))
+        end
+        function _recv(fd, len)
+            local buff = ffi.new('unsigned char[?]', len)
+            local status = ffi.C.recv(fd, buff, len, 0) ~= -1
+            return status, status and ffi.string(buff, len) or _strerror()
+        end
+    else
+        local socket = assert(require 'socket')
+        msg.verbose('using', socket._VERSION)
+    end
 else
     RPC.path = [[\\?\pipe\discord-ipc-0]]
 end
@@ -102,8 +137,19 @@ end
 
 function RPC:connect()
     local status, data
-    if self.unix then
-        self.socket = assert(require 'socket.unix' ())
+    if ffi then
+        local addr = ffi.new('struct sockaddr_un[1]', {{
+            sun_family = 1, -- AF_UNIX
+            sun_path = self.path
+        }})
+        self.socket = ffi.C.socket(1, 1, 0) -- AF_UNIX, SOCK_STREAM
+        if self.socket ~= -1 then
+            status = _connect(self.socket, addr)
+            if status ~= -1 then return true end
+        end
+        data = _strerror()
+    elseif self.unix then
+        self.socket = require 'socket.unix' ()
         status, data = pcall(function()
             assert(self.socket:connect(self.path))
         end)
@@ -125,7 +171,9 @@ function RPC:recv(len)
         assert(self:connect(), 'failed to connect')
     end
     local status, data
-    if self.unix then
+    if ffi then
+        status, data = _recv(self.socket, len)
+    elseif self.unix then
         status, data = pcall(function()
             return assert(self.socket:receive(len))
         end)
@@ -149,7 +197,10 @@ function RPC:send(op, body)
     end
     local data = self.pack(op, body)
     msg.debug('sending', data:tohex())
-    if self.unix then
+    if ffi then
+        local status = ffi.C.send(self.socket, data, #data, 0)
+        assert(status ~= -1, _strerror())
+    elseif self.unix then
         assert(self.socket:send(data))
     else
         assert(self.socket:write(data))
@@ -203,7 +254,12 @@ end
 function RPC:disconnect()
     if self.socket then
         self:send(OP.CLOSE, '')
-        self.socket:close()
+        if ffi then
+            local status = ffi.C.close(self.socket)
+            assert(status ~= -1, _strerror())
+        else
+            self.socket:close()
+        end
         self.socket = nil
     end
 end

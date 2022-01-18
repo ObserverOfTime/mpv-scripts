@@ -5,8 +5,8 @@
 My collection of cross-platform scripts for [mpv][mpv].
 
 Feel free to edit and adapt them however you like
-and if you think your changes should be merged,
-don't hesitate to submit a pull request.
+<br>and if you think your changes should be merged,
+<br>don't hesitate to submit a pull request.
 
 ### [open-dialog](open-dialog)
 
@@ -32,10 +32,15 @@ Screenshot the full window and copy it to the clipboard.
 
 ### [discord.lua](discord.lua)
 
-A Discord RPC script that does not require LuaJIT.
-<br>It can be used out of the box on Windows.
-<br>On Linux and MacOS it depends on [luasocket][].
+Discord rich presence in a single script.
 <br>Default key binding: `D`
+
+|              |  Windows  |  Linux  |  MacOS  |
+|:------------:|:---------:|:-------:|:-------:|
+|  **LuaJIT**  |     ✓     |    ✓    |    ✗    |
+|   **Lua**    |     ✓     |    ∗    |    ∗    |
+
+∗ Requires [LuaSocket](https://w3.impa.br/~diego/software/luasocket/)
 
 ### [misc.lua](misc.lua)
 
@@ -47,4 +52,3 @@ Show the current time (`HH:MM`) on the OSD.
 <br>Default key binding: `Ctrl+t`
 
 [mpv]: https://github.com/mpv-player/mpv
-[luasocket]: http://w3.impa.br/~diego/software/luasocket/home.html

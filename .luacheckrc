@@ -1,6 +1,6 @@
 -- luacheck: ignore 131
 
-std = 'lua52c'
+std = 'luajit'
 
 read_globals = {'mp'}
 
