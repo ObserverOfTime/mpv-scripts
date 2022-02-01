@@ -8,17 +8,17 @@ All scripts provide the following functions:
 #### `open-files`
 
 Open one or more media files in mpv.
-<br>Default key binding: `Ctrl+f`
+<br>Default key binding: <kbd>Ctrl + f</kbd>
 
 #### `open-url`
 
 Open a URL in mpv.
-<br>Default key binding: `Ctrl+F`
+<br>Default key binding: <kbd>Ctrl + F</kbd>
 
 #### `open-subs`
 
 Open one or more subtitle files in mpv.
-<br>Default key binding: `Alt+f`
+<br>Default key binding: <kbd>Alt + f</kbd>
 
 ---
 

@@ -18,22 +18,22 @@ Scripts that launch a dialog for opening files or URLs.
 #### `clipshot-subs`
 
 Screenshot the video (with subs) and copy it to the clipboard.
-<br>Default key binding: `c`
+<br>Default key binding: <kbd>c</kbd>
 
 #### `clipshot-video`
 
 Screenshot the video (w/o subs) and copy it to the clipboard.
-<br>Default key binding: `C`
+<br>Default key binding: <kbd>C</kbd>
 
 #### `clipshot-window`
 
 Screenshot the full window and copy it to the clipboard.
-<br>Default key binding: `Alt+c`
+<br>Default key binding: <kbd>Alt + c</kbd>
 
 ### [discord.lua](discord.lua)
 
 Discord rich presence in a single script.
-<br>Default key binding: `D`
+<br>Default key binding: <kbd>D</kbd>
 
 |              |  Windows  |  Linux  |  MacOS  |
 |:------------:|:---------:|:-------:|:-------:|
@@ -49,6 +49,6 @@ Miscellaneous simple functions.
 #### `show-time`
 
 Show the current time (`HH:MM`) on the OSD.
-<br>Default key binding: `Ctrl+t`
+<br>Default key binding: <kbd>Ctrl+t</kbd>
 
 [mpv]: https://github.com/mpv-player/mpv
