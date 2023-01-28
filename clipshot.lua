@@ -1,41 +1,53 @@
-NAME = 'mpv-screenshot.jpeg'
+---@class ClipshotOptions
+---@field name string
+---@field type string
+local o = {
+    name = 'mpv-screenshot.jpeg',
+    type = '' -- defaults to jpeg
+}
+require('mp.options').read_options(o, 'clipshot')
 
-if package.config:sub(1, 1) == '\\' then -- Windows
-    SHOT = os.getenv('TEMP')..'\\'..NAME
-    CMD = {
+local file, cmd
+
+local lib = package.cpath:match('%p[\\|/]?%p(%a+)')
+if lib == 'so' then -- Linux/BSD
+    file = '/tmp/'..o.name
+    if os.getenv('XDG_SESSION_TYPE') == 'wayland' then -- Wayland
+        cmd = {'sh', '-c', ('wl-copy < %q'):format(file)}
+    else -- Xorg
+        local type = o.type ~= '' and o.type or 'image/jpeg'
+        cmd = {'xclip', '-sel', 'c', '-t', type, '-i', file}
+    end
+elseif lib == 'dll' then -- Windows
+    file = os.getenv('TEMP')..'\\'..o.name
+    cmd = {
         'powershell', '-NoProfile', '-Command', ([[& {
             Add-Type -Assembly System.Windows.Forms;
             Add-Type -Assembly System.Drawing;
             $shot = [Drawing.Image]::FromFile(%q);
             [Windows.Forms.Clipboard]::SetImage($shot);
-        }]]):format(SHOT)
+        }]]):format(file)
     }
-else -- Unix
-    SHOT = '/tmp/'..NAME
-    -- os.getenv('OSTYPE') doesn't work
-    local ostype = io.popen('printf "$OSTYPE"', 'r'):read()
-    if ostype:sub(1, 6) == 'darwin' then -- MacOS
-        CMD = {
-            'osascript', '-e', ([[¬
-                set the clipboard to ( ¬
-                    read (POSIX file %q) as JPEG picture ¬
-                ) ¬
-            ]]):format(SHOT)
-        }
-    else -- Linux/BSD
-        if os.getenv('XDG_SESSION_TYPE') == 'wayland' then -- Wayland
-            CMD = {'sh', '-c', ('wl-copy < %q'):format(SHOT)}
-        else -- Xorg
-            CMD = {'xclip', '-sel', 'c', '-t', 'image/jpeg', '-i', SHOT}
-        end
-    end
+else -- MacOS
+    file = os.getenv('TMPDIR')..'/'..o.name
+    -- png: «class PNGf»
+    local type = o.type ~= '' and o.type or 'JPEG picture'
+    cmd = {
+        'osascript', '-e', ([[¬
+            set the clipboard to ( ¬
+                read (POSIX file %q) as %s ¬
+            ) ¬
+        ]]):format(file, type)
+    }
 end
 
-function clipshot(arg)
+---@param arg string
+---@return fun()
+local function clipshot(arg)
     return function()
-        mp.commandv('screenshot-to-file', SHOT, arg)
-        mp.command_native_async({'run', unpack(CMD)}, function(suc, _, err)
-            mp.osd_message(suc and 'Copied screenshot to clipboard' or err)
+        mp.commandv('screenshot-to-file', file, arg)
+        mp.command_native_async({'run', unpack(cmd)}, function(suc, _, err)
+            mp.osd_message(suc and 'Copied screenshot to clipboard' or err, 1)
         end)
     end
 end

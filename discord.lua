@@ -1,6 +1,15 @@
-utils = require 'mp.utils'
-msg = require 'mp.msg'
+local utils = require 'mp.utils'
+local msg = require 'mp.msg'
 
+---@class DiscordOptions
+---@field timeout integer
+---@field keybind string
+---@field enabled boolean
+---@field invidious string
+---@field piped string
+---@field nitter string
+---@field libreddit string
+---@field client_id string
 local o = {
     timeout = 2,
     keybind = 'D',
@@ -13,7 +22,8 @@ local o = {
 }
 require('mp.options').read_options(o, 'discord')
 
-function string.uuid()
+---@return string
+local function uuid()
     math.randomseed(mp.get_time() * 1e4)
     local tpl = 'XXXXXXXX-XXXX-4XXX-%xXXX-XXXXXXXXXXXX'
     return tpl:format(math.random(8, 0xb)):gsub('X', function(_)
@@ -21,17 +31,32 @@ function string.uuid()
     end)
 end
 
-function string:tohex()
-    return self:gsub('.', function(c)
+---@param str string
+---@return string
+local function tohex(str)
+    return str:gsub('.', function(c)
         return ('\\x%02x'):format(c:byte())
     end)
 end
 
-MPV = mp.get_property('mpv-version')
+---@type string
+local VERSION = mp.get_property('mpv-version')
 
-OP = {AUTHENTICATE = 0, FRAME = 1, CLOSE = 2}
+---@enum OP
+local OP = {AUTHENTICATE = 0, FRAME = 1, CLOSE = 2}
 
-RPC = {
+---@class unixstream
+---@field connect fun()
+---@field receive fun()
+---@field send fun()
+
+---@class RPC
+---@field socket integer|file*|unixstream?
+---@field pid integer
+---@field unix boolean
+---@field path string
+---@field _last string?
+local RPC = {
     socket = nil,
     pid = utils.getpid(),
     unix = package.config:sub(1, 1) == '/'
@@ -44,9 +69,9 @@ if RPC.unix then
               or os.getenv('TEMP')
               or '/tmp'
     RPC.path = temp..'/discord-ipc-0'
-    if type(jit) == 'table' then
-        msg.verbose('using', jit.version)
-        ffi = require('ffi')
+    if _G.jit then
+        msg.verbose('using', _G.jit.version)
+        local ffi = require 'ffi'
         ffi.cdef[[
             struct sockaddr {
                 unsigned short int sa_family;
@@ -63,17 +88,24 @@ if RPC.unix then
             int close(int fd);
             char *strerror(int errnum);
         ]]
-        function _strerror()
+        ---@return string
+        function RPC._strerror()
             return ffi.string(ffi.C.strerror(ffi.errno()))
         end
-        function _connect(fd, addr)
+        ---@param fd integer
+        ---@param addr ffi.cdata*
+        ---@return integer
+        function RPC._connect(fd, addr)
             local cast = ffi.cast('const struct sockaddr *', addr)
             return ffi.C.connect(fd, cast, ffi.sizeof(addr[0]))
         end
-        function _recv(fd, len)
+        ---@param fd integer
+        ---@param len integer
+        ---@return boolean, string
+        function RPC._recv(fd, len)
             local buff = ffi.new('unsigned char[?]', len)
             local status = ffi.C.recv(fd, buff, len, 0) ~= -1
-            return status, status and ffi.string(buff, len) or _strerror()
+            return status, status and ffi.string(buff, len) or RPC._strerror()
         end
     else
         local socket = assert(require 'socket')
@@ -83,6 +115,26 @@ else
     RPC.path = [[\\?\pipe\discord-ipc-0]]
 end
 
+---@class Assets
+---@field large_image string
+---@field large_text string?
+---@field small_image string?
+---@field small_text string?
+
+---@class Timestamps
+---@field start integer
+---@field end integer?
+
+---@class Button
+---@field label string
+---@field url string
+
+---@class Activity
+---@field details string
+---@field state string?
+---@field timestamps Timestamps?
+---@field buttons Button[]?
+---@field assets Assets
 RPC.activity = {
     details = 'No file',
     state = nil,
@@ -90,17 +142,21 @@ RPC.activity = {
     buttons = nil,
     assets = {
         large_image = 'mpv',
-        large_text = MPV,
+        large_text = VERSION,
         small_image = 'stop',
         small_text = 'Idle'
     }
 }
 
+---@return integer
 function RPC.get_time()
     local pos = mp.get_property_number('time-pos', 0)
     return math.floor(os.time() - pos)
 end
 
+---@param op OP
+---@param body string?
+---@return string
 function RPC.pack(op, body)
     local bytes = {}
     assert(body, 'empty body')
@@ -116,6 +172,8 @@ function RPC.pack(op, body)
     return table.concat(bytes, '')..body
 end
 
+---@param body string?
+---@return number, number
 function RPC.unpack(body)
     local byte
     local op = 0
@@ -135,19 +193,21 @@ function RPC.unpack(body)
     return math.floor(op), math.floor(len)
 end
 
+---@return boolean
 function RPC:connect()
     local status, data
-    if ffi then
+    if _G.jit then
+        local ffi = package.loaded.ffi
         local addr = ffi.new('struct sockaddr_un[1]', {{
             sun_family = 1, -- AF_UNIX
             sun_path = self.path
         }})
-        self.socket = ffi.C.socket(1, 1, 0) -- AF_UNIX, SOCK_STREAM
+        self.socket = ffi.C.socket(1, 1, 0) -- AF_UNIX, SOCK_STREAM, 0
         if self.socket ~= -1 then
-            status = _connect(self.socket, addr)
+            status = self._connect(self.socket, addr)
             if status ~= -1 then return true end
         end
-        data = _strerror()
+        data = self._strerror()
     elseif self.unix then
         self.socket = require 'socket.unix' ()
         status, data = pcall(function()
@@ -166,13 +226,15 @@ function RPC:connect()
     return false
 end
 
+---@param len integer
+---@return string?
 function RPC:recv(len)
     if not self.socket then
         assert(self:connect(), 'failed to connect')
     end
     local status, data
-    if ffi then
-        status, data = _recv(self.socket, len)
+    if _G.jit then
+        status, data = self._recv(self.socket, len)
     elseif self.unix then
         status, data = pcall(function()
             return assert(self.socket:receive(len))
@@ -186,20 +248,23 @@ function RPC:recv(len)
         msg.error(data)
         return nil
     end
-    msg.debug('received', data:tohex())
+    msg.debug('received', tohex(data))
     assert(data:len() == len, 'incorrect data length')
     return data
 end
 
+---@param op OP
+---@param body string?
 function RPC:send(op, body)
     if not self.socket then
         assert(self:connect(), 'failed to connect')
     end
     local data = self.pack(op, body)
-    msg.debug('sending', data:tohex())
-    if ffi then
-        local status = ffi.C.send(self.socket, data, #data, 0)
-        assert(status ~= -1, _strerror())
+    msg.debug('sending', tohex(data))
+    if _G.jit then
+        local status = package.loaded.ffi.C
+            .send(self.socket, data, #data, 0)
+        assert(status ~= -1, self._strerror())
     elseif self.unix then
         assert(self.socket:send(data))
     else
@@ -208,6 +273,7 @@ function RPC:send(op, body)
     end
 end
 
+---@param version? integer
 function RPC:handshake(version)
     local body = utils.format_json {
         v = version or 1,
@@ -221,11 +287,12 @@ function RPC:handshake(version)
     msg.verbose('performed handshake')
 end
 
+---@return string?
 function RPC:set_activity()
     if self.activity.details:len() > 127 then
         self.activity.details = self.activity.details:sub(1, 126)..'…'
     end
-    local nonce = string.uuid()
+    local nonce = uuid()
     local body = utils.format_json {
         cmd = 'SET_ACTIVITY', nonce = nonce,
         args = {activity = self.activity, pid = self.pid}
@@ -254,9 +321,9 @@ end
 function RPC:disconnect()
     if self.socket then
         self:send(OP.CLOSE, '')
-        if ffi then
-            local status = ffi.C.close(self.socket)
-            assert(status ~= -1, _strerror())
+        if _G.jit then
+            local status = package.loaded.ffi.C.close(self.socket)
+            assert(status ~= -1, self._strerror())
         else
             self.socket:close()
         end
@@ -274,7 +341,7 @@ mp.register_event('idle-active', function()
             small_image = 'stop',
             small_text = 'Idle',
             large_image = 'mpv',
-            large_text = MPV
+            large_text = VERSION
         }
     }
 end)
@@ -390,11 +457,11 @@ mp.observe_property('eof-reached', 'bool', function(_, value)
     end
 end)
 
-timer = mp.add_periodic_timer(o.timeout, function()
+local timer = mp.add_periodic_timer(o.timeout, function()
     local curr = utils.format_json(RPC.activity)
-    if timer._last ~= curr then
+    if RPC._last ~= curr then
         RPC:set_activity()
-        timer._last = curr
+        RPC._last = curr
     end
 end)
 
@@ -404,7 +471,7 @@ mp.add_key_binding(o.keybind, 'toggle-discord-rpc', function()
         RPC:handshake()
         timer:resume()
     else
-        timer._last = nil
+        RPC._last = nil
         RPC:disconnect()
         timer:kill()
     end

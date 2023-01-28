@@ -1,6 +1,6 @@
-utils = require 'mp.utils'
+local utils = require 'mp.utils'
 
-MULTIMEDIA = table.concat({
+local MULTIMEDIA = table.concat({
     '*.aac',
     '*.avi',
     '*.flac',
@@ -23,7 +23,7 @@ MULTIMEDIA = table.concat({
     '*.wmv',
 }, ' ')
 
-SUBTITLES = table.concat({
+local SUBTITLES = table.concat({
     '*.ass',
     '*.srt',
     '*.ssa',
@@ -31,9 +31,18 @@ SUBTITLES = table.concat({
     '*.txt',
 }, ' ')
 
-ICON = 'mpv'
+local ICON = 'mpv'
 
-function KDialog(opts)
+---@class KDOpts
+---@field title string
+---@field text string
+---@field default? string
+---@field type? string
+---@field args string[]
+
+---@param opts KDOpts
+---@return fun()
+local function KDialog(opts)
     return function()
         local path = mp.get_property('path')
         path = path == nil and '' or utils.split_path(
@@ -56,7 +65,7 @@ function KDialog(opts)
         }
         mp.set_property_native('ontop', ontop)
         if kdialog.status ~= 0 then return end
-        for file in string.gmatch(kdialog.stdout, '[^\n]+') do
+        for file in kdialog.stdout:gmatch('[^\n]+') do
             mp.commandv(opts.args[1], file, opts.args[2])
         end
     end

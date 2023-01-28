@@ -1,6 +1,6 @@
-utils = require 'mp.utils'
+local utils = require 'mp.utils'
 
-MULTIMEDIA = table.concat({
+local MULTIMEDIA = table.concat({
     '*.aac',
     '*.avi',
     '*.flac',
@@ -23,7 +23,7 @@ MULTIMEDIA = table.concat({
     '*.wmv',
 }, ';')
 
-SUBTITLES = table.concat({
+local SUBTITLES = table.concat({
     '*.ass',
     '*.srt',
     '*.ssa',
@@ -31,7 +31,15 @@ SUBTITLES = table.concat({
     '*.txt',
 }, ';')
 
-function PowerShell(opts)
+---@class PSOpts
+---@field title string
+---@field text string
+---@field args string[]
+---@field template? string
+
+---@param opts PSOpts
+---@return fun()
+local function PowerShell(opts)
     return function()
         local template = opts.template or [[& {
             Add-Type -AssemblyName System.Windows.Forms;
@@ -55,12 +63,12 @@ function PowerShell(opts)
         local powershell = utils.subprocess {
             args = {
                 'powershell', '-NoProfile', '-Command',
-                string.format(template, opts.text, opts.title, path)
+                template:format(opts.text, opts.title, path)
             }, cancellable = false
         }
         mp.set_property_native('ontop', ontop)
         if powershell.status ~= 0 then return end
-        for file in string.gmatch(powershell.stdout, '[^\r\n]+') do
+        for file in powershell.stdout:gmatch('[^\r\n]+') do
             mp.commandv(opts.args[1], file, opts.args[2])
         end
     end

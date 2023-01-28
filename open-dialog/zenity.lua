@@ -1,6 +1,6 @@
-utils = require 'mp.utils'
+local utils = require 'mp.utils'
 
-MULTIMEDIA = table.concat({
+local MULTIMEDIA = table.concat({
     '*.aac',
     '*.avi',
     '*.flac',
@@ -23,7 +23,7 @@ MULTIMEDIA = table.concat({
     '*.wmv',
 }, ' ')
 
-SUBTITLES = table.concat({
+local SUBTITLES = table.concat({
     '*.ass',
     '*.srt',
     '*.ssa',
@@ -31,9 +31,10 @@ SUBTITLES = table.concat({
     '*.txt',
 }, ' ')
 
-ICON = '/usr/share/icons/hicolor/16x16/apps/mpv.png'
+local ICON = '/usr/share/icons/hicolor/16x16/apps/mpv.png'
 
-function table.merge(...)
+---@vararg table
+local function merge(...)
     local ret = {}
     for _, t in pairs({...}) do
         for _, v in pairs(t) do
@@ -43,7 +44,16 @@ function table.merge(...)
     return ret
 end
 
-function Zenity(opts)
+---@class ZOpts
+---@field title string
+---@field text string[]
+---@field default? string[]
+---@field type? string[]
+---@field args string[]
+
+---@param opts ZOpts
+---@return fun()
+local function Zenity(opts)
     return function()
         local path = mp.get_property('path')
         path = path == nil and {} or {
@@ -57,7 +67,7 @@ function Zenity(opts)
         }.stdout:gsub('\n$', '')
         mp.set_property_native('ontop', false)
         local zenity = utils.subprocess {
-            args = table.merge({
+            args = merge({
                 'zenity', '--modal',
                 '--title', opts.title,
                 '--attach', focus,
@@ -71,7 +81,7 @@ function Zenity(opts)
         }
         mp.set_property_native('ontop', ontop)
         if zenity.status ~= 0 then return end
-        for file in string.gmatch(zenity.stdout, '[^\n]+') do
+        for file in zenity.stdout:gmatch('[^\n]+') do
             mp.commandv(opts.args[1], file, opts.args[2])
         end
     end
