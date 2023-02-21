@@ -61,6 +61,13 @@ jobs:
           project-name: Open Dialog (PowerShell)
           project-column: To do
           project-scope: repository
+      - name: Add to Open Dialog (OSAScript) project
+        if: contains(github.event.issue.body, '`open-dialog/osascript.lua`')
+        uses: jeffdanielperso/github-project-auto@1.0.0
+        with:
+          project-name: Open Dialog (OSAScript)
+          project-column: To do
+          project-scope: repository
       - name: Add to Discord project
         if: contains(github.event.issue.body, '`discord.lua`')
         uses: jeffdanielperso/github-project-auto@1.0.0

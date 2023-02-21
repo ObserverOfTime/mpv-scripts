@@ -34,18 +34,12 @@ If not, you should download
 
 ### Windows
 
-You just have to download [powershell.lua](powershell.lua).
+Download [powershell.lua](powershell.lua).
 
 ### MacOS
 
-You can install Zenity from [MacPorts][ports]
-or [Homebrew][brew] and download [zenity_nox.lua][zenity-nox].
-
-**TODO**: Write an AppleScript version.
+Download [osascript.lua](osascript.lua).
 
 [kdialog]: https://github.com/KDE/kdialog
 [zenity]: https://github.com/GNOME/zenity
 [xdotool]: https://github.com/jordansissel/xdotool
-[zenity-nox]: https://git.io/JeZZL
-[brew]: https://formulae.brew.sh/formula/zenity
-[ports]: https://ports.macports.org/port/zenity/summary
