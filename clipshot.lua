@@ -33,10 +33,9 @@ else -- MacOS
     -- png: «class PNGf»
     local type = o.type ~= '' and o.type or 'JPEG picture'
     cmd = {
-        'osascript', '-e', ([[¬
+        'osascript', '-e', ([[
             set the clipboard to ( ¬
-                read (POSIX file %q) as %s ¬
-            ) ¬
+                read (POSIX file %q) as %s)
         ]]):format(file, type)
     }
 end
