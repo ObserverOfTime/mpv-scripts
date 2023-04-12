@@ -86,9 +86,9 @@ mp.add_key_binding('Ctrl+F', 'open-url', OSAScript {
     template = [[
         try
             return text returned of ( ¬
-                display dialog "Enter the URL to open:" ¬
-                    with title "Open URL" default answer "" ¬
-                    buttons {"Cancel", "OK"} default button 2)
+                display dialog %q ¬
+                with title %q default answer "" ¬
+                buttons {"Cancel", "OK"} default button 2)
         on error number -128
             return ""
         end try
