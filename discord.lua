@@ -112,7 +112,7 @@ if RPC.unix then
         msg.verbose('using', socket._VERSION)
     end
 else
-    RPC.path = [[\\?\pipe\discord-ipc-0]]
+    RPC.path = [[\\.\pipe\discord-ipc-0]]
 end
 
 ---@class Assets
