@@ -18,7 +18,7 @@ if lib == 'so' then -- Linux/BSD
         local type = o.type ~= '' and o.type or 'image/jpeg'
         cmd = {'xclip', '-sel', 'c', '-t', type, '-i', file}
     end
-elseif lib == 'dll' then -- Windows
+elseif lib ~= 'dylib' then -- Windows
     file = os.getenv('TEMP')..'\\'..o.name
     cmd = {
         'powershell', '-NoProfile', '-Command', ([[& {
