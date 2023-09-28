@@ -9,16 +9,8 @@ require('mp.options').read_options(o, 'clipshot')
 
 local file, cmd
 
-local lib = package.cpath:match('%p[\\|/]?%p(%a+)')
-if lib == 'so' then -- Linux/BSD
-    file = '/tmp/'..o.name
-    if os.getenv('XDG_SESSION_TYPE') == 'wayland' then -- Wayland
-        cmd = {'sh', '-c', ('wl-copy < %q'):format(file)}
-    else -- Xorg
-        local type = o.type ~= '' and o.type or 'image/jpeg'
-        cmd = {'xclip', '-sel', 'c', '-t', type, '-i', file}
-    end
-elseif lib ~= 'dylib' then -- Windows
+local platform = mp.get_property_native('platform')
+if platform == 'windows' then
     file = os.getenv('TEMP')..'\\'..o.name
     cmd = {
         'powershell', '-NoProfile', '-Command', ([[& {
@@ -28,7 +20,7 @@ elseif lib ~= 'dylib' then -- Windows
             [Windows.Forms.Clipboard]::SetImage($shot);
         }]]):format(file)
     }
-else -- MacOS
+elseif platform == 'darwin' then
     file = os.getenv('TMPDIR')..'/'..o.name
     -- png: «class PNGf»
     local type = o.type ~= '' and o.type or 'JPEG picture'
@@ -38,6 +30,14 @@ else -- MacOS
                 read (POSIX file %q) as %s)
         ]]):format(file, type)
     }
+else
+    file = '/tmp/'..o.name
+    if os.getenv('XDG_SESSION_TYPE') == 'wayland' then
+        cmd = {'sh', '-c', ('wl-copy < %q'):format(file)}
+    else
+        local type = o.type ~= '' and o.type or 'image/jpeg'
+        cmd = {'xclip', '-sel', 'c', '-t', type, '-i', file}
+    end
 end
 
 ---@param arg string
