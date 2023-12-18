@@ -1,3 +1,7 @@
+---Miscellaneous utilities
+---@author ObserverOfTime
+---@license 0BSD
+
 ---@type string
 local TIME_FORMAT = '%H:%M'
 

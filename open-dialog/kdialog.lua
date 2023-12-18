@@ -1,3 +1,7 @@
+---Launch a dialog for opening files or URLs (KDialog)
+---@author ObserverOfTime
+---@license 0BSD
+
 local utils = require 'mp.utils'
 
 local MULTIMEDIA = table.concat({

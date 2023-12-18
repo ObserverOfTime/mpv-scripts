@@ -1,3 +1,7 @@
+---Discord rich presence
+---@author ObserverOfTime
+---@license 0BSD
+
 local utils = require 'mp.utils'
 local msg = require 'mp.msg'
 

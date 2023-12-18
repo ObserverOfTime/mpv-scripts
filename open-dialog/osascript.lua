@@ -1,3 +1,7 @@
+---Launch a dialog for opening files or URLs (OSAScript)
+---@author ObserverOfTime
+---@license 0BSD
+
 local utils = require 'mp.utils'
 
 local MULTIMEDIA = utils.format_json({
