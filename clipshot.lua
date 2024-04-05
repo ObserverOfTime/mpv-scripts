@@ -17,22 +17,21 @@ local platform = mp.get_property_native('platform')
 if platform == 'windows' then
     file = os.getenv('TEMP')..'\\'..o.name
     cmd = {
-        'powershell', '-NoProfile', '-Command', ([[& {
-            Add-Type -Assembly System.Windows.Forms;
-            Add-Type -Assembly System.Drawing;
-            $shot = [Drawing.Image]::FromFile(%q);
-            [Windows.Forms.Clipboard]::SetImage($shot);
-        }]]):format(file)
+        'cmd', '/c', string.format(
+            'powershell -NoProfile -Command %q',
+            "Add-Type -Assembly System.Windows.Forms, System.Drawing; "..
+            "[Windows.Forms.Clipboard]::SetImage([Drawing.Image]::FromFile('"..file.."'))"
+        )
     }
 elseif platform == 'darwin' then
     file = os.getenv('TMPDIR')..'/'..o.name
     -- png: «class PNGf»
     local type = o.type ~= '' and o.type or 'JPEG picture'
     cmd = {
-        'osascript', '-e', ([[
-            set the clipboard to ( ¬
-                read (POSIX file %q) as %s)
-        ]]):format(file, type)
+        'osascript', '-e', string.format(
+            'set the clipboard to (read (POSIX file %q) as %s)',
+            file, type
+        )
     }
 else
     file = '/tmp/'..o.name
