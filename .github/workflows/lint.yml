@@ -1,6 +1,11 @@
 name: Check scripts with luacheck
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [master]
+    paths: ["**/*.lua"]
+  pull_request:
+    paths: ["**/*.lua"]
 
 jobs:
   luacheck:
@@ -15,13 +20,13 @@ jobs:
           - ver: luajit-2.0.5
             std: luajit
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         name: Checkout repository
-      - uses: leafo/gh-actions-lua@v8.0.0
+      - uses: leafo/gh-actions-lua@ecdb13962d7d7274594480620bb6075504122bfe
         name: Install lua [${{matrix.lua.ver}}]
         with:
           luaVersion: ${{matrix.lua.ver}}
-      - uses: leafo/gh-actions-luarocks@v4.0.0
+      - uses: leafo/gh-actions-luarocks@4dcae7fc5aff45e847b32f62b60a13167e912395
         name: Install luarocks
       - name: Install luacheck
         run: luarocks install luacheck

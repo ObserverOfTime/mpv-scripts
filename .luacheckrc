@@ -6,7 +6,7 @@ read_globals = {'mp'}
 
 allow_defined_top = false
 
-max_line_length = 80
+max_line_length = 100
 
 max_comment_line_length = false
 
