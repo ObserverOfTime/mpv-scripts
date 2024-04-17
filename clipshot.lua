@@ -17,10 +17,11 @@ local platform = mp.get_property_native('platform')
 if platform == 'windows' then
     file = os.getenv('TEMP')..'\\'..o.name
     cmd = {
-        'cmd', '/c', string.format(
-            'powershell -NoProfile -Command %q',
-            "Add-Type -Assembly System.Windows.Forms, System.Drawing; "..
-            "[Windows.Forms.Clipboard]::SetImage([Drawing.Image]::FromFile('"..file.."'))"
+        'powershell', '-NoProfile', '-Command',
+        'Add-Type -Assembly System.Windows.Forms, System.Drawing;',
+        string.format(
+            "[Windows.Forms.Clipboard]::SetImage([Drawing.Image]::FromFile('%s'))",
+            file:gsub("'", "''")
         )
     }
 elseif platform == 'darwin' then
