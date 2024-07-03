@@ -5,8 +5,8 @@ body:
   - type: dropdown
     id: scripts
     attributes:
-      label: Script(s)
-      multiple: true
+      label: Script
+      multiple: false
       options:
         - "`clipshot.lua`"
         - "`discord.lua`"

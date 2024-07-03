@@ -5,8 +5,8 @@ body:
   - type: dropdown
     id: scripts
     attributes:
-      label: Script(s)
-      multiple: true
+      label: Script
+      multiple: false
       options:
         - "`clipshot.lua`"
         - "`discord.lua`"
@@ -46,13 +46,18 @@ body:
         - label: Windows
         - label: Linux
         - label: macOS
-  - type: input
+  - type: textarea
     id: mpv-version
     attributes:
       label: MPV version
+      description: "`mpv --version`"
+      render: text
     validations: {required: false}
   - type: input
     id: lua-version
     attributes:
       label: Lua version
+      description: |-
+        Linux/macOS: `ldd "$(which mpv)" | grep lua`
+        Windows: Figure it out ¯\\_(ツ)\_/¯
     validations: {required: false}
