@@ -3,9 +3,17 @@ name: Check scripts with luacheck
 on:
   push:
     branches: [master]
-    paths: ["**/*.lua"]
+    paths-ignore:
+      - _config.yml
+      - LICENSE.txt
+      - README.md
+      - open-dialog/README.md
   pull_request:
-    paths: ["**/*.lua"]
+    paths-ignore:
+      - _config.yml
+      - LICENSE.txt
+      - README.md
+      - open-dialog/README.md
 
 jobs:
   luacheck:
@@ -20,14 +28,16 @@ jobs:
           - ver: luajit-2.0.5
             std: luajit
     steps:
-      - uses: actions/checkout@v4
-        name: Checkout repository
-      - uses: leafo/gh-actions-lua@ecdb13962d7d7274594480620bb6075504122bfe
-        name: Install lua [${{matrix.lua.ver}}]
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install lua [${{matrix.lua.ver}}]
+        uses: leafo/gh-actions-lua@v11
         with:
           luaVersion: ${{matrix.lua.ver}}
-      - uses: leafo/gh-actions-luarocks@4dcae7fc5aff45e847b32f62b60a13167e912395
-        name: Install luarocks
+      - name: Install luarocks
+        uses: leafo/gh-actions-luarocks@v5
+        with:
+          luarocksVersion: 3.12.2
       - name: Install luacheck
         run: luarocks install luacheck
       - name: Lint with luacheck
