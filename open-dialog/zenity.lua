@@ -4,6 +4,8 @@
 
 local utils = require 'mp.utils'
 
+local xorg = os.getenv('XDG_SESSION_TYPE') == 'x11'
+
 local MULTIMEDIA = table.concat({
     '*.aac',
     '*.avi',
@@ -65,23 +67,31 @@ local function Zenity(opts)
                 utils.join_path(utils.getcwd(), path)
             )
         }
-        local ontop = mp.get_property_native('ontop')
-        local focus = utils.subprocess {
-            args = {'xdotool', 'getwindowfocus'}
-        }.stdout:gsub('\n$', '')
-        mp.set_property_native('ontop', false)
-        local zenity = utils.subprocess {
-            args = merge({
+        local args = merge(
+            {
                 'zenity', '--modal',
                 '--title', opts.title,
-                '--attach', focus,
                 '--window-icon', ICON,
-            }, opts.default or path,
-            opts.text, opts.type or {
+            },
+            opts.default or path,
+            opts.text,
+            opts.type or {
                 '--file-selection',
                 '--separator', '\n',
                 '--multiple',
-            }), cancellable = false,
+            }
+        )
+        local ontop = mp.get_property_native('ontop')
+        if xorg then
+            local focus = utils.subprocess {
+                args = {'xdotool', 'getwindowfocus'}
+            }.stdout:gsub('\n$', '')
+            table.insert(args, 5, '--attach')
+            table.insert(args, 6, focus)
+        end
+        mp.set_property_native('ontop', false)
+        local zenity = utils.subprocess {
+            args = args, cancellable = false
         }
         mp.set_property_native('ontop', ontop)
         if zenity.status ~= 0 then return end

@@ -30,8 +30,6 @@ If you're on KDE, you should download
 If not, you should download
 [zenity.lua](zenity.lua) which uses [Zenity][zenity].
 
-[xdotool][xdotool] is required for both scripts.
-
 ### Windows
 
 Download [powershell.lua](powershell.lua).
@@ -42,4 +40,3 @@ Download [osascript.lua](osascript.lua).
 
 [kdialog]: https://github.com/KDE/kdialog
 [zenity]: https://github.com/GNOME/zenity
-[xdotool]: https://github.com/jordansissel/xdotool

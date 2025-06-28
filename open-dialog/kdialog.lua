@@ -4,6 +4,8 @@
 
 local utils = require 'mp.utils'
 
+local xorg = os.getenv('XDG_SESSION_TYPE') == 'x11'
+
 local MULTIMEDIA = table.concat({
     '*.aac',
     '*.avi',
@@ -52,20 +54,24 @@ local function KDialog(opts)
         path = path == nil and '' or utils.split_path(
             utils.join_path(utils.getcwd(), path)
         )
+        local args = {
+            'kdialog', opts.default or path,
+            '--title', opts.title,
+            '--icon', ICON,
+            '--multiple', '--separate-output',
+            opts.type or '--getopenfilename', opts.text,
+        }
         local ontop = mp.get_property_native('ontop')
-        local focus = utils.subprocess {
-            args = {'xdotool', 'getwindowfocus'}
-        }.stdout:gsub('\n$', '')
+        if xorg then
+            local focus = utils.subprocess {
+                args = {'xdotool', 'getwindowfocus'}
+            }.stdout:gsub('\n$', '')
+            table.insert(args, 5, '--attach')
+            table.insert(args, 6, focus)
+        end
         mp.set_property_native('ontop', false)
         local kdialog = utils.subprocess {
-            args = {
-                'kdialog', opts.default or path,
-                '--title', opts.title,
-                '--attach', focus,
-                '--icon', ICON,
-                '--multiple', '--separate-output',
-                opts.type or '--getopenfilename', opts.text,
-            }, cancellable = false,
+            args = args, cancellable = false
         }
         mp.set_property_native('ontop', ontop)
         if kdialog.status ~= 0 then return end
